@@ -1,0 +1,585 @@
+/* ------------------------------------------------------------
+   American Rumble — Visual Identity & Layout Engine
+   Palette: Near-black arena, deep navy suits, campaign red,
+   and brass/ivory accents for special/saint meters.
+   Supports 1v1, 2v2 Tag Mode, Touch/Joystick Controls, PWA, 
+   and Telegram Mini App viewports.
+   ------------------------------------------------------------ */
+
+:root {
+  --bg-void: #050709;
+  --bg-navy: #0f1526;
+  --panel: #10141f;
+  --panel-line: rgba(255,255,255,0.08);
+  --ink: #eef1f6;
+  --ink-dim: #9aa3b5;
+  --red: #c81d25;
+  --blue: #2450c8;
+  --brass: #c9a227;
+  --health: #3fae52;
+  --health-low: #c81d25;
+  --stamina: #2aa7c8;
+  --meter: #c9a227;
+
+  --font-display: "Arial Narrow", "Oswald", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+* { 
+  box-sizing: border-box; 
+  -webkit-tap-highlight-color: transparent; 
+  user-select: none; 
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg-void);
+  color: var(--ink);
+  font-family: var(--font-body);
+  overscroll-behavior: none;
+}
+
+#app {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+}
+.screen.active { display: flex; }
+.screen.hidden { display: none !important; }
+.screen.overlay {
+  display: flex;
+  z-index: 50;
+  background: rgba(3, 5, 8, 0.86);
+  align-items: center;
+  justify-content: center;
+}
+.screen.overlay.hidden { display: none !important; }
+
+/* ============================== MENU ============================== */
+
+#screen-menu {
+  background:
+    radial-gradient(ellipse at 75% 20%, rgba(200,29,37,0.10), transparent 55%),
+    radial-gradient(ellipse at 50% 100%, rgba(36,80,200,0.12), transparent 60%),
+    var(--bg-void);
+  overflow-y: auto;
+}
+
+.menu-inner {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 28px 20px 40px;
+}
+
+.game-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(34px, 9vw, 54px);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin: 6px 0 2px;
+  text-align: center;
+}
+.game-title span { color: var(--red); }
+
+.game-sub {
+  text-align: center;
+  color: var(--ink-dim);
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 0 0 26px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-line);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.panel-label {
+  font-family: var(--font-display);
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--brass);
+  margin: 0 0 12px;
+}
+
+.mode-row { display: flex; gap: 10px; }
+.mode-btn {
+  flex: 1;
+  background: var(--bg-navy);
+  border: 1px solid var(--panel-line);
+  border-radius: 8px;
+  color: var(--ink);
+  padding: 12px 10px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mode-btn strong { font-family: var(--font-display); letter-spacing: 1px; text-transform: uppercase; font-size: 15px; }
+.mode-btn span { color: var(--ink-dim); font-size: 11.5px; }
+.mode-btn.active { border-color: var(--red); box-shadow: 0 0 0 1px var(--red) inset; }
+
+.roster-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.roster-card {
+  flex: 1 1 96px;
+  min-width: 96px;
+  background: var(--bg-navy);
+  border: 1px solid var(--panel-line);
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  text-align: center;
+}
+.roster-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 6px; display: block; margin-bottom: 6px; }
+.roster-card .rc-name { font-family: var(--font-display); font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.5px; }
+.roster-card .rc-tag { font-size: 10px; color: var(--ink-dim); }
+.roster-card.selected { border-color: var(--brass); box-shadow: 0 0 0 1px var(--brass) inset; }
+
+.opponent-preview { display: flex; align-items: center; gap: 12px; color: var(--ink-dim); font-size: 13px; }
+.opponent-preview img { width: 54px; height: 54px; object-fit: cover; border-radius: 6px; }
+
+.cta-btn {
+  display: block;
+  width: 100%;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 16px;
+  font-family: var(--font-display);
+  font-size: 17px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.cta-btn:disabled { background: #3a3f4d; color: var(--ink-dim); cursor: not-allowed; }
+
+.secondary-btn {
+  background: transparent;
+  border: 1px solid var(--panel-line);
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-family: var(--font-display);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+/* ============================== FIGHT SCREEN & HUD ============================== */
+
+#screen-fight { background: var(--bg-void); }
+
+.hud {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 10px 12px 6px;
+  gap: 10px;
+  z-index: 5;
+}
+
+.hud-side { flex: 1; min-width: 0; }
+.hud-right { text-align: right; }
+
+.hud-active-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.hud-name {
+  font-family: var(--font-display);
+  font-size: clamp(11px, 3vw, 14px);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.bar-stack { display: flex; flex-direction: column; gap: 3px; }
+.hud-right .bar-stack { align-items: flex-end; }
+
+.bar {
+  width: 100%;
+  max-width: 220px;
+  height: 9px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 5px;
+  overflow: hidden;
+  position: relative;
+}
+.stamina-bar, .meter-bar { height: 5px; }
+.bar-fill { height: 100%; width: 100%; transition: width 90ms linear; }
+.health-fill { background: var(--health); }
+.health-fill.low { background: var(--health-low); }
+.stamina-fill { background: var(--stamina); }
+.meter-fill { background: var(--meter); }
+
+.hud-center {
+  text-align: center;
+  min-width: 70px;
+}
+#hud-timer {
+  font-family: var(--font-display);
+  font-size: 26px;
+  letter-spacing: 1px;
+}
+#hud-mode-tag {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--ink-dim);
+}
+
+/* 2v2 Tag Bench Cards HUD Styling */
+.hud-bench-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16, 20, 31, 0.85);
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--panel-line);
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--ink-dim);
+  width: fit-content;
+  backdrop-filter: blur(4px);
+}
+
+.hud-right .hud-bench-card {
+  margin-left: auto;
+  flex-direction: row-reverse;
+}
+
+.bench-label {
+  font-family: var(--font-display);
+  font-weight: bold;
+  color: var(--brass);
+  letter-spacing: 0.5px;
+}
+
+.bench-name {
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.bar.mini {
+  height: 6px;
+  width: 60px;
+}
+
+/* Arena Canvas Setup */
+#canvas-wrap {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+  background: #0f172a;
+}
+#fight-canvas { width: 100%; height: 100%; display: block; }
+
+.dialogue-box {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  max-width: 92%;
+  background: rgba(5, 7, 10, 0.82);
+  border: 1px solid var(--panel-line);
+  border-left: 3px solid var(--brass);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.3;
+}
+.dialogue-box.hidden { display: none !important; }
+
+.combo-display {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-display);
+  font-size: 15px;
+  letter-spacing: 1.5px;
+  color: var(--brass);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+}
+.combo-display.hidden { display: none !important; }
+.dialogue-speaker {
+  font-family: var(--font-display);
+  color: var(--brass);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-right: 6px;
+  font-size: 12px;
+}
+
+/* ============================== TOUCH CONTROLS ============================== */
+
+.controls-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 10px 16px calc(14px + env(safe-area-inset-bottom));
+  z-index: 5;
+}
+
+.joystick {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--panel-line);
+  position: relative;
+  touch-action: none;
+}
+.joystick-knob {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 42px; height: 42px;
+  margin: -21px 0 0 -21px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.22);
+  border: 1px solid rgba(255,255,255,0.3);
+  transition: transform 60ms linear;
+}
+
+.button-cluster { display: flex; align-items: flex-end; gap: 10px; }
+
+.button-diamond {
+  position: relative;
+  width: 150px;
+  height: 130px;
+}
+.ctrl-btn {
+  position: absolute;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.18);
+  font-family: var(--font-display);
+  font-size: 10.5px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #fff;
+  touch-action: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ctrl-btn.pressed, .ctrl-btn:active { filter: brightness(1.35); transform: scale(0.95); }
+
+.btn-punch    { background: #a3341f; right: 0;    bottom: 38px; }
+.btn-kick     { background: #1f5aa3; left: 0;     bottom: 38px; }
+.btn-grapple  { background: #4a4a4a; right: 48px; bottom: 0; }
+.btn-special  { background: linear-gradient(135deg, var(--brass), #8a6d10); right: 48px; top: 0; box-shadow: 0 0 10px rgba(201,162,39,0.5); }
+
+.btn-block {
+  position: relative;
+  width: 66px; height: 66px;
+  border-radius: 14px;
+  background: #2a2f3d;
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  touch-action: none;
+  cursor: pointer;
+}
+.btn-block.pressed { background: var(--stamina); }
+
+/* Dedicated 2v2 Tag Button */
+.btn-tag {
+  position: relative;
+  width: 66px; height: 66px;
+  border-radius: 14px;
+  background: rgba(34, 197, 94, 0.8);
+  border: 1px solid rgba(74, 222, 128, 0.8);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  touch-action: none;
+  cursor: pointer;
+}
+.btn-tag.pressed { background: #16a34a; transform: scale(0.95); }
+.btn-tag.hidden { display: none !important; }
+
+/* ============================== POLICY CLASH ============================== */
+
+.policy-card {
+  width: min(92%, 420px);
+  background: var(--panel);
+  border: 1px solid var(--brass);
+  border-radius: 12px;
+  padding: 22px 20px;
+  position: relative;
+}
+.policy-seal {
+  position: absolute;
+  top: -14px; left: 50%;
+  transform: translateX(-50%) rotate(-3deg);
+  background: var(--brass);
+  color: #201803;
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 2px;
+  padding: 5px 14px;
+  border-radius: 4px;
+}
+.policy-prompt {
+  margin: 14px 0 16px;
+  font-size: 16px;
+  line-height: 1.35;
+  text-align: center;
+}
+.policy-choices { display: flex; flex-direction: column; gap: 8px; }
+.policy-choice-btn {
+  background: var(--bg-navy);
+  border: 1px solid var(--panel-line);
+  color: var(--ink);
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+.policy-choice-btn.correct { border-color: var(--health); box-shadow: 0 0 0 1px var(--health) inset; }
+.policy-choice-btn.wrong { border-color: var(--red); box-shadow: 0 0 0 1px var(--red) inset; opacity: 0.7; }
+.policy-feedback {
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--ink-dim);
+  text-align: center;
+}
+.policy-feedback.hidden { display: none !important; }
+
+/* ============================== RESULT SCREEN ============================== */
+
+#screen-result {
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at 50% 30%, rgba(201,162,39,0.10), transparent 60%), var(--bg-void);
+}
+.result-inner { text-align: center; padding: 20px; max-width: 420px; }
+.result-title {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 8vw, 44px);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--brass);
+  margin: 0 0 14px;
+}
+.result-portrait {
+  width: 150px; height: 150px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 2px solid var(--brass);
+  margin-bottom: 12px;
+}
+.result-name {
+  font-family: var(--font-display);
+  font-size: 18px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 0 0 6px;
+}
+.result-quote { color: var(--ink-dim); font-style: italic; margin: 0 0 22px; }
+.result-buttons { display: flex; gap: 10px; }
+.result-buttons .cta-btn, .result-buttons .secondary-btn { flex: 1; }
+
+/* Small Screens Adjustments */
+@media (max-width: 380px) {
+  .joystick { width: 82px; height: 82px; }
+  .button-diamond { width: 128px; height: 112px; }
+  .ctrl-btn { width: 48px; height: 48px; font-size: 9.5px; }
+  .btn-block, .btn-tag { width: 56px; height: 56px; font-size: 10px; }
+}
+
+/* ============================== PWA / PLATFORM ============================== */
+
+.platform-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 12px auto 18px;
+  min-height: 34px;
+}
+#platform-label {
+  font-size: .72rem;
+  letter-spacing: .16em;
+  font-weight: 900;
+  opacity: .72;
+}
+.install-btn {
+  border: 1px solid rgba(255,255,255,.28);
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  cursor: pointer;
+}
+.install-btn:hover { background: rgba(255,255,255,.14); }
+.install-btn.hidden { display: none !important; }
+
+@media (display-mode: standalone) {
+  body { overscroll-behavior: none; }
+}
+
+@media (max-width: 900px) {
+  body { min-height: 100dvh; }
+  #app { min-height: 100dvh; }
+}
+
+@media (orientation: portrait) and (max-width: 900px) {
+  #screen-fight::before {
+    content: "Rotate your phone for the best fight view";
+    position: absolute;
+    z-index: 100;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: .68rem;
+    font-weight: 900;
+    letter-spacing: .05em;
+    background: rgba(0,0,0,.62);
+    color: white;
+    pointer-events: none;
+  }
+}
+
+/* Character portraits in roster cards */
+.roster-card img {
+  display: block;
+  width: 100%;
+  max-width: 150px;
+  height: 150px;
+  margin: 0 auto 0.75rem;
+  object-fit: contain;
+}

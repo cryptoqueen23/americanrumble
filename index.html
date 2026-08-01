@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>American Rumble</title>
+<meta name="theme-color" content="#0b1018">
+<meta name="description" content="American Rumble — a 2D American animal fighting game with politics, civics, and unique combat styles.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="American Rumble">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ============================================================ -->
+  <!-- MAIN MENU / MODE SELECT / CHARACTER SELECT                    -->
+  <!-- ============================================================ -->
+  <section id="screen-menu" class="screen active">
+    <div class="menu-inner">
+      <h1 class="game-title">AMERICAN <span>RUMBLE</span></h1>
+      <p class="game-sub">Fight. Debate. Defend your values.</p>
+      <div class="platform-bar">
+        <span id="platform-label">WEB</span>
+        <button id="btn-install" class="install-btn hidden" type="button">INSTALL APP</button>
+      </div>
+
+      <div class="panel">
+        <h2 class="panel-label">01 — Match Type & Content Rating</h2>
+        <div class="mode-row">
+          <button class="mode-btn active" id="btn-match-1v1" data-match="1v1">
+            <strong>1v1 Duel</strong>
+            <span>Classic single combat</span>
+          </button>
+          <button class="mode-btn" id="btn-match-2v2" data-match="2v2">
+            <strong>2v2 Tag Team</strong>
+            <span>Select 2 fighters per team</span>
+          </button>
+        </div>
+        <div class="mode-row" style="margin-top: 10px;">
+          <button class="mode-btn active" data-mode="family">
+            <strong>Family Mode</strong>
+            <span>Cartoon KOs, civics-first dialogue</span>
+          </button>
+          <button class="mode-btn" data-mode="adult">
+            <strong>Adult Mode</strong>
+            <span>Harder impacts, bigger effects</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2 class="panel-label">02 — Choose Fighter(s)</h2>
+        <p id="roster-instruction" class="game-sub" style="margin-bottom: 8px;">Select Player 1 Fighter</p>
+        <div id="roster" class="roster-row"></div>
+      </div>
+
+      <div class="panel">
+        <h2 class="panel-label">03 — Matchup Preview</h2>
+        <div id="opponent-preview" class="opponent-preview"></div>
+      </div>
+
+      <button id="btn-start-fight" class="cta-btn" disabled>SELECT A FIGHTER</button>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- FIGHT SCREEN                                                   -->
+  <!-- ============================================================ -->
+  <section id="screen-fight" class="screen">
+
+    <div class="hud">
+      <!-- Team A / Player 1 -->
+      <div class="hud-side hud-left">
+        <div class="hud-active-card">
+          <div class="hud-name" id="hud-name-a">FIGHTER A</div>
+          <div class="bar-stack">
+            <div class="bar health-bar"><div id="bar-health-a" class="bar-fill health-fill"></div></div>
+            <div class="bar stamina-bar"><div id="bar-stamina-a" class="bar-fill stamina-fill"></div></div>
+            <div class="bar meter-bar"><div id="bar-meter-a" class="bar-fill meter-fill"></div></div>
+          </div>
+        </div>
+        <!-- Team A Bench -->
+        <div class="hud-bench-card hidden" id="bench-card-a">
+          <span class="bench-label">BENCH:</span>
+          <span id="bench-name-a" class="bench-name">--</span>
+          <div class="bar health-bar mini"><div id="bar-bench-health-a" class="bar-fill health-fill"></div></div>
+        </div>
+      </div>
+
+      <div class="hud-center">
+        <div id="hud-timer">90</div>
+        <div id="hud-mode-tag">FAMILY</div>
+      </div>
+
+      <!-- Team B / Player 2 -->
+      <div class="hud-side hud-right">
+        <div class="hud-active-card">
+          <div class="hud-name" id="hud-name-b">FIGHTER B</div>
+          <div class="bar-stack">
+            <div class="bar health-bar"><div id="bar-health-b" class="bar-fill health-fill"></div></div>
+            <div class="bar stamina-bar"><div id="bar-stamina-b" class="bar-fill stamina-fill"></div></div>
+            <div class="bar meter-bar"><div id="bar-meter-b" class="bar-fill meter-fill"></div></div>
+          </div>
+        </div>
+        <!-- Team B Bench -->
+        <div class="hud-bench-card hidden" id="bench-card-b">
+          <span class="bench-label">BENCH:</span>
+          <span id="bench-name-b" class="bench-name">--</span>
+          <div class="bar health-bar mini"><div id="bar-bench-health-b" class="bar-fill health-fill"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="canvas-wrap">
+      <canvas id="fight-canvas"></canvas>
+      <div id="dialogue-box" class="dialogue-box hidden">
+        <span id="dialogue-speaker" class="dialogue-speaker"></span>
+        <span id="dialogue-text"></span>
+      </div>
+      <div id="combo-display" class="combo-display hidden"></div>
+    </div>
+
+    <!-- Touch Controls -->
+    <div class="controls-row">
+      <div id="joystick" class="joystick">
+        <div id="joystick-knob" class="joystick-knob"></div>
+      </div>
+
+      <div class="button-cluster">
+        <button id="btn-block" class="ctrl-btn btn-block">BLOCK</button>
+        <button id="btn-tag" class="ctrl-btn btn-tag hidden">TAG (T)</button>
+        <div class="button-diamond">
+          <button id="btn-kick" class="ctrl-btn btn-kick">KICK</button>
+          <button id="btn-grapple" class="ctrl-btn btn-grapple">GRAPPLE</button>
+          <button id="btn-punch" class="ctrl-btn btn-punch">PUNCH</button>
+          <button id="btn-special" class="ctrl-btn btn-special">SAINT</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- POLICY CLASH MODAL                                             -->
+  <!-- ============================================================ -->
+  <section id="screen-policyclash" class="screen overlay hidden">
+    <div class="policy-card">
+      <div class="policy-seal">POLICY CLASH</div>
+      <p id="policy-prompt" class="policy-prompt"></p>
+      <div id="policy-choices" class="policy-choices"></div>
+      <p id="policy-feedback" class="policy-feedback hidden"></p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- WIN / LOSS SCREEN                                              -->
+  <!-- ============================================================ -->
+  <section id="screen-result" class="screen hidden">
+    <div class="result-inner">
+      <h2 id="result-title" class="result-title">VICTORY</h2>
+      <img id="result-portrait" class="result-portrait" src="" alt="">
+      <p id="result-name" class="result-name"></p>
+      <p id="result-quote" class="result-quote"></p>
+      <div class="result-buttons">
+        <button id="btn-rematch" class="cta-btn">REMATCH</button>
+        <button id="btn-menu" class="secondary-btn">MAIN MENU</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script src="https://telegram.org/js/telegram-web-app.js?59"></script>
+<script src="js/platform.js"></script>
+<script src="js/characters.js"></script>
+<script src="js/policyClash.js"></script>
+<script src="js/fighter.js"></script>
+<script src="js/input.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
