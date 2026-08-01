@@ -184,7 +184,10 @@ html, body {
 
 /* ============================== FIGHT SCREEN & HUD ============================== */
 
-#screen-fight { background: var(--bg-void); }
+#screen-fight {
+  background: #050709;
+  isolation: isolate;
+}
 
 .hud {
   display: flex;
@@ -289,9 +292,51 @@ html, body {
   flex: 1;
   position: relative;
   min-height: 0;
-  background: #0f172a;
+  overflow: hidden;
+  isolation: isolate;
+
+  /* ring.png is in the root backgrounds folder */
+  background-image:
+    linear-gradient(to bottom, rgba(2, 5, 10, 0.06), rgba(2, 5, 10, 0.22)),
+    url("../backgrounds/ring.png");
+  background-size: cover;
+  background-position: center bottom;
+  background-repeat: no-repeat;
 }
-#fight-canvas { width: 100%; height: 100%; display: block; }
+
+/* Subtle arena light and vignette above the background, below the canvas */
+#canvas-wrap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 12%, rgba(255,255,255,0.14), transparent 35%),
+    linear-gradient(to right, rgba(0,0,0,0.18), transparent 18%, transparent 82%, rgba(0,0,0,0.18));
+}
+
+#canvas-wrap::after {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 3%;
+  height: 20%;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0.28), transparent 70%);
+  filter: blur(18px);
+}
+
+#fight-canvas {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: transparent;
+}
 
 .dialogue-box {
   position: absolute;
@@ -328,6 +373,36 @@ html, body {
   text-transform: uppercase;
   margin-right: 6px;
   font-size: 12px;
+}
+
+/* Fight-screen polish */
+.hud {
+  background: linear-gradient(to bottom, rgba(2,4,7,0.96), rgba(2,4,7,0.84));
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+}
+
+.controls-row {
+  background: linear-gradient(to top, rgba(2,4,7,0.96), rgba(2,4,7,0.76));
+  border-top: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 -12px 30px rgba(0,0,0,0.28);
+}
+
+.dialogue-box,
+.combo-display {
+  z-index: 4;
+}
+
+@media (min-width: 901px) {
+  #canvas-wrap {
+    min-height: 420px;
+  }
+}
+
+@media (max-width: 900px) {
+  #canvas-wrap {
+    background-position: center bottom;
+  }
 }
 
 /* ============================== TOUCH CONTROLS ============================== */
