@@ -1,4 +1,4 @@
-const CACHE_NAME = "american-rumble-v5";
+const CACHE_NAME = "american-rumble-v6";
 
 const CORE = [
   "./",
@@ -9,6 +9,7 @@ const CORE = [
   "./css/style.css",
 
   "./js/ai.js",
+  "./js/audio.js",
   "./js/characters.js",
   "./js/engine.js",
   "./js/fighter.js",
