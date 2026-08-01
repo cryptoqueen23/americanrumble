@@ -316,32 +316,40 @@ class FightEngine {
     ctx.fill();
     ctx.restore();
 
-    // body plinth (colored, gives silhouette + faction accent even before art loads)
-    ctx.fillStyle = f.data.color;
-    roundRect(ctx, -w / 2, -h / 2, w, h, 18);
-    ctx.fill();
+    // faction color ring on the ground (replaces the old body-box stripe —
+    // reads as team color without boxing in a transparent full-body sprite)
+    ctx.save();
+    ctx.translate(0, groundY - y + offsetY * 0.3);
+    ctx.strokeStyle = f.data.accent;
+    ctx.globalAlpha = 0.6;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, baseW * 0.42, 12, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.restore();
 
-    // portrait art
+    let dw = 0, dh = 0;
     if (img && img.complete && img.naturalWidth) {
-      ctx.save();
+      // contain-fit: full sprite visible at its own aspect ratio, no
+      // cropping, no clip box — transparent PNG background stays transparent
+      const scale = Math.min(w / img.naturalWidth, h / img.naturalHeight);
+      dw = img.naturalWidth * scale;
+      dh = img.naturalHeight * scale;
+      ctx.drawImage(img, -dw / 2, h / 2 - dh, dw, dh);
+    } else {
+      // fallback silhouette only while art is loading (or fails to load)
+      ctx.fillStyle = f.data.color;
       roundRect(ctx, -w / 2, -h / 2, w, h, 18);
-      ctx.clip();
-      const scale = Math.max(w / img.naturalWidth, h / img.naturalHeight);
-      const dw = img.naturalWidth * scale, dh = img.naturalHeight * scale;
-      ctx.drawImage(img, -dw / 2, -h / 2 - (dh - h) * 0.28, dw, dh);
-      ctx.restore();
+      ctx.fill();
+      dw = w; dh = h;
     }
 
-    // faction accent stripe
-    ctx.fillStyle = f.data.accent;
-    ctx.fillRect(-w / 2, h / 2 - 10, w, 6);
-
-    // hit flash overlay
+    // hit flash overlay — sized to the actual drawn sprite, not the old padded box
     if (f.hitFlash > 0) {
       ctx.globalAlpha = Math.min(0.6, f.hitFlash / 180 * 0.6);
       ctx.fillStyle = "#ffffff";
-      roundRect(ctx, -w / 2, -h / 2, w, h, 18);
-      ctx.fill();
+      ctx.fillRect(-dw / 2, h / 2 - dh, dw, dh);
       ctx.globalAlpha = 1;
     }
 
@@ -349,7 +357,7 @@ class FightEngine {
     if (f.meter >= f.data.maxMeter) {
       ctx.strokeStyle = f.data.accent;
       ctx.lineWidth = 3;
-      roundRect(ctx, -w / 2 - 4, -h / 2 - 4, w + 8, h + 8, 20);
+      roundRect(ctx, -dw / 2 - 6, h / 2 - dh - 6, dw + 12, dh + 12, 16);
       ctx.stroke();
     }
 
