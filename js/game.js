@@ -119,6 +119,15 @@ class Game {
         };
       }
 
+      const btnMute = document.getElementById('btn-mute');
+      if (btnMute) {
+        btnMute.onclick = () => {
+          window.audioManager?.unlock();
+          const muted = window.audioManager?.toggleMute();
+          btnMute.innerHTML = muted ? "&#128263;" : "&#128266;";
+        };
+      }
+
       // Rematch & Menu Buttons
       const btnRematch = document.getElementById('btn-rematch');
       if (btnRematch) {
@@ -272,6 +281,11 @@ class Game {
     this.timer = 90;
     this.isFighting = true;
 
+    // Audio: unlock on this user gesture, then kick off the arena music bed
+    window.audioManager?.unlock();
+    window.audioManager?.stopMusic();
+    window.audioManager?.startMusic();
+
     const canvas = document.getElementById('fight-canvas');
     const player = this.team1.getActiveFighter();
     const cpu = this.team2.getActiveFighter();
@@ -289,7 +303,11 @@ class Game {
     window.cpuController = new AIController('normal');
     window.engine = new FightEngine(canvas, player, cpu, {
       mode: this.contentMode,
-      onKO: () => this.endMatch()
+      onKO: () => { window.audioManager?.ko(); this.endMatch(); },
+      onHit: (attacker, defender, blocked) => {
+        const intense = this.contentMode === 'adult';
+        window.audioManager?.hitSound(attacker.currentMoveKey, blocked, intense);
+      }
     });
     window.engine.start();
 
@@ -443,6 +461,7 @@ class Game {
 
   endMatch() {
     this.isFighting = false;
+    window.audioManager?.stopMusic();
     document.getElementById('screen-fight')?.classList.remove('active');
     document.getElementById('screen-result')?.classList.remove('hidden');
 

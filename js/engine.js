@@ -39,6 +39,7 @@ class FightEngine {
 
     this._loadImage(fighterA.data.portrait);
     this._loadImage(fighterB.data.portrait);
+    this._loadImage(this.arenaBg = "assets/backgrounds/ring.png");
   }
 
   _loadImage(src) {
@@ -230,11 +231,29 @@ class FightEngine {
   }
 
   _drawArena(ctx, w, h) {
-    const grad = ctx.createRadialGradient(w * 0.7, h * 0.25, 40, w * 0.5, h * 0.5, w * 0.75);
-    grad.addColorStop(0, "#1a2440");
-    grad.addColorStop(1, "#050709");
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, w, h);
+    const bg = this.images[this.arenaBg];
+    const bgReady = bg && bg.complete && bg.naturalWidth;
+
+    if (bgReady) {
+      const scale = Math.max(w / bg.naturalWidth, h / bg.naturalHeight);
+      const dw = bg.naturalWidth * scale, dh = bg.naturalHeight * scale;
+      ctx.drawImage(bg, (w - dw) / 2, h - dh, dw, dh);
+
+      const tint = ctx.createRadialGradient(w * 0.7, h * 0.25, 40, w * 0.5, h * 0.5, w * 0.75);
+      tint.addColorStop(0, "rgba(26, 36, 64, 0.15)");
+      tint.addColorStop(1, "rgba(5, 7, 9, 0.55)");
+      ctx.fillStyle = tint;
+      ctx.fillRect(0, 0, w, h);
+    } else {
+      const grad = ctx.createRadialGradient(w * 0.7, h * 0.25, 40, w * 0.5, h * 0.5, w * 0.75);
+      grad.addColorStop(0, "#1a2440");
+      grad.addColorStop(1, "#050709");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.fillStyle = "#0c1018";
+      ctx.fillRect(0, this.groundY, w, h - this.groundY);
+    }
 
     // faint red arena accent splatter (matches promo art) — subtle, non-graphic
     ctx.fillStyle = "rgba(200, 29, 37, 0.06)";
@@ -246,9 +265,7 @@ class FightEngine {
       ctx.fill();
     }
 
-    // ground
-    ctx.fillStyle = "#0c1018";
-    ctx.fillRect(0, this.groundY, w, h - this.groundY);
+    // ground line
     ctx.strokeStyle = "rgba(255,255,255,0.08)";
     ctx.beginPath();
     ctx.moveTo(0, this.groundY);

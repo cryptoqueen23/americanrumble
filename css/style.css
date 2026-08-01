@@ -247,6 +247,20 @@ html, body {
   letter-spacing: 2px;
   color: var(--ink-dim);
 }
+#btn-mute {
+  margin-top: 4px;
+  background: transparent;
+  border: 1px solid var(--panel-line);
+  border-radius: 6px;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1;
+  padding: 3px 7px;
+  cursor: pointer;
+}
+#btn-mute:active {
+  background: rgba(255,255,255,0.08);
+}
 
 /* 2v2 Tag Bench Cards HUD Styling */
 .hud-bench-card {
