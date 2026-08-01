@@ -285,6 +285,8 @@ class Game {
     window.audioManager?.unlock();
     window.audioManager?.stopMusic();
     window.audioManager?.startMusic();
+    window.audioManager?.stopCrowd();
+    window.audioManager?.startCrowd();
 
     const canvas = document.getElementById('fight-canvas');
     const player = this.team1.getActiveFighter();
@@ -462,6 +464,7 @@ class Game {
   endMatch() {
     this.isFighting = false;
     window.audioManager?.stopMusic();
+    window.audioManager?.stopCrowd();
     document.getElementById('screen-fight')?.classList.remove('active');
     document.getElementById('screen-result')?.classList.remove('hidden');
 
