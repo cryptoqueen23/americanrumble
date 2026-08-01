@@ -1,4 +1,4 @@
-const CACHE_NAME = "american-rumble-v2";
+const CACHE_NAME = "american-rumble-v5";
 
 const CORE = [
   "./",
